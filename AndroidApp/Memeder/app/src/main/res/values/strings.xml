@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Memeder</string>
+    <string name="save_meme">Save Meme</string>
+    <string name="display_meme">Display Meme Text</string>
+    <string name="prev_meme">Previous</string>
+    <string name="next_meme">Next</string>
 </resources>

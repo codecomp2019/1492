@@ -16,12 +16,12 @@ public class MainActivity extends AppCompatActivity {
     TextToSpeech tts;
     String image_save = "Imaged is now saved.";
 
-
+    private Button first_Btn;
+    private Button second_Btn;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         final Button first_Btn = findViewById(R.id.first_Btn);
         final Button second_Btn = findViewById(R.id.second_Btn);
 
@@ -35,13 +35,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         first_Btn.setOnClickListener(new View.OnClickListener() {
-               @Override
-            public void onClick(View v){
-                   ConvertTextToSpeech1();
-               }
-        }
-        });
+            @Override
+            public void onClick(View v) {
+                ConvertTextToSpeech1();
+            }
 
+        });
+    }
 
 
 
@@ -58,11 +58,6 @@ public class MainActivity extends AppCompatActivity {
             tts.shutdown();
         }
         super.onPause();
-
-
-
-
-
 
     }
 }

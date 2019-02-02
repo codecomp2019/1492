@@ -71,6 +71,12 @@ app.post("/", function (req, res) {
             }
             else {
                 res.send("Done");
+                var object = {
+                    file: ""+filename,
+                    description: "Description of meme",
+                    text: "text of meme"
+                }
+                memes.push(object);
             }
         })
     }

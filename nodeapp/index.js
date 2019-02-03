@@ -5,7 +5,7 @@ let memes = [
     {
         file: "badluckfire.jpg",
         description: "Bad Luck Brian",
-        text: "Stop, drop and roll into another fire"
+        text: "Stops, drops and rolls... into another fire"
     },
     {
         file: "firstworldproblem.jpg",

@@ -2,8 +2,6 @@ package com.example.memeder;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
@@ -16,25 +14,20 @@ import android.widget.Toast;
 
 import com.google.gson.Gson;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
-    String meme_description = "This is the description of the Meme";
+    String meme_description = "";
     TextToSpeech tts;
     String image_save = "Meme is now saved.";
-    String app_instructions = "To operate our application.";
+    String app_instructions = "To operate our application, swipe left or right to" +
+            "scroll for memes, swipe down for the meme description and text,"+
+            "Shake your phone to share the meme";
     String previous_swipe = "Previous Meme";
     String next_swipe = "Next Meme";
     String share_shake = "Sharing Meme";
@@ -45,13 +38,13 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     private static final int SWIPE_MIN_DISTANCE = 100;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
-    int[] arrayOfPics = {
-            R.drawable.badluckfire,
-            R.drawable.firstworldproblem,
-            R.drawable.philosoraptor,
-            R.drawable.scumbagsteve,
-            R.drawable.successkid,
-    };
+    //int[] arrayOfPics = {
+    //        R.drawable.badluckfire,
+    //        R.drawable.firstworldproblem,
+    //        R.drawable.philosoraptor,
+    //        R.drawable.scumbagsteve,
+    //        R.drawable.successkid,
+    //};
     private ImageView imageView;
 
     //Tag for log messages
@@ -123,11 +116,11 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
 
     @Override
     public void onLongPress(MotionEvent e) {
-        new APIRequest().execute();
-        memeID++;
-        if (memeID > 4) {
-            memeID = 0;
-        }
+        //new APIRequest().execute();
+        //memeID++;
+        //if (memeID > 4) {
+        //    memeID = 0;
+        //}
     }
 
     @Override
@@ -178,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
 
 
     public void onRightSwipe() {
-        if (memeID + 1 < arrayOfPics.length) {
+        if (memeID + 1 < 5) {
             memeID++;
             requestImage();
             ConvertTextToSpeech4();
@@ -211,8 +204,9 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     }
 
     public void ConvertTextToSpeech2() {
+        meme_description = curr.getDescription()+". "+curr.getText();
         Toast.makeText(getApplicationContext(), meme_description, Toast.LENGTH_SHORT).show();
-        tts.speak(curr.getDescription(), TextToSpeech.QUEUE_FLUSH, null);
+        tts.speak(meme_description, TextToSpeech.QUEUE_FLUSH, null);
     }
 
 
@@ -245,6 +239,19 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
         }
         super.onPause();
 
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if (status != TextToSpeech.ERROR) {
+                    tts.setLanguage(Locale.US);
+                }
+            }
+        });
     }
 
     ///////////////////////////Begin Trying to connect to server////////////////////////////////////

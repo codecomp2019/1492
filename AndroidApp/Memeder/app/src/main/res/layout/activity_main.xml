@@ -7,9 +7,9 @@
     tools:context=".MainActivity">
 
     <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="384dp"
-        android:layout_height="392dp"
+        android:id="@+id/imageView3"
+        android:layout_width="336dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
@@ -18,6 +18,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/example" />
-
+        app:srcCompat="@drawable/badluckfire" />
 </android.support.constraint.ConstraintLayout>

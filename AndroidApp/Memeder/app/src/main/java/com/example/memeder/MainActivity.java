@@ -1,17 +1,27 @@
 package com.example.memeder;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnLongClickListener;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import java.util.Locale;
 
+
 public class MainActivity extends AppCompatActivity implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS =0;
     String meme_description = "This is the description of the Meme";
     TextToSpeech tts;
     String image_save = "Meme is now saved.";
@@ -19,11 +29,18 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     String previous_swipe = "Previous Meme";
     String next_swipe = "Next Meme";
     String share_shake = "Sharing Meme";
+    EditText txt_msg;
+    String msg = "Hello World";
+
     private GestureDetector detector;
     private static final int SHAKE_THRESHOLD = 800;
     private static final int SWIPE_MIN_DISTANCE = 100;
     private static final int SWIPE_MAX_OFF_PATH = 250;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+    static final int MY_PERMSSIONS_REQUEST_SEND_SMS =0;
+    OnLongClickListener longClickListener;
+    SmsManager smsManager;
 
 
     int currentmemeindex = 0;
@@ -44,6 +61,10 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
         this.detector = new GestureDetector(this, this);
         imageView = (ImageView) findViewById(R.id.imageView3);
         detector.setOnDoubleTapListener(this);
+
+
+        smsManager = SmsManager.getDefault();
+
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -97,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
 
         @Override
         public void onLongPress(MotionEvent e) {
+            sendSMSMessage();
 
         }
 
@@ -160,6 +182,44 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
 
 
     }
+
+    public void sendSMSMessage(){
+
+        msg = "";
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.SEND_SMS)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        MY_PERMISSIONS_REQUEST_SEND_SMS);
+            }
+        }
+
+        smsManager.sendTextMessage("8184230174",null, msg, null, null);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "SMS sent.",
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "SMS faild, please try again.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            }
+        }
+
+    }
+
+
 
     private void updateMemeImage() {
         //Toast.makeText(getApplicationContext(), currentmemeindex, Toast.LENGTH_SHORT).show();

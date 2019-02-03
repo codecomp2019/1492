@@ -19,6 +19,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+
 import java.io.IOException;
 import java.util.Locale;
 
@@ -48,10 +50,13 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
     //Tag for log messages
-    private static final String TAG = "MyActivity";
-    //URLS to be used
-    private final String HOME = "http://172.28.170.170:3000/";
-    private final String MEME = "http://172.28.170.170:3000/meme";
+    private static final String API = "API_Execute";
+    private static final String OBJ = "Object";
+    //URL to be used
+    private final String MEME = "http://172.28.170.170:3000/meme/";
+
+    //int used for HTTP request
+    int memeID = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,7 +75,6 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
             }
         });
 
-        new APIRequest().execute();
     }
 
     /////////////Begin Gestures////////////////////////
@@ -113,6 +117,11 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
 
     @Override
     public void onLongPress(MotionEvent e) {
+        new APIRequest().execute();
+        memeID++;
+        if(memeID > 4){
+            memeID = 0;
+        }
     }
 
     @Override
@@ -217,11 +226,18 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
             try {
                 // HTTP GET
                 WebHandler example = new WebHandler();
-                response = example.run(MEME);
+                // response = url[meme id/index]
+                // log it
+                response = example.run(MEME+memeID);
+                //response contains JSON string
+                //this needs to be converted from JSON to Meme class
+                Gson g = new Gson();
+                Meme m = g.fromJson(response, Meme.class);
+                Log.i(OBJ, m.toString());
             } catch (IOException e) {
                 response = e.toString();
             }
-            Log.i(TAG, response);
+            Log.i(API, response);
             return response;
         }
 

@@ -4,4 +4,5 @@
     <string name="display_meme">Display Meme Text</string>
     <string name="prev_meme">Previous</string>
     <string name="next_meme">Next</string>
+    <string name="content_description">Main View</string>
 </resources>

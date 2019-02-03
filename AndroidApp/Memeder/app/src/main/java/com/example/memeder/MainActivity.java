@@ -97,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
 
         @Override
         public void onLongPress(MotionEvent e) {
+
         }
 
         @Override

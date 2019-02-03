@@ -1,14 +1,29 @@
 package com.example.memeder;
 
+
+import android.Manifest;
+import android.content.pm.PackageManager;
+
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
+
 import android.os.Bundle;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+
+import android.telephony.SmsManager;
 import android.util.Log;
+
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.View.OnLongClickListener;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -20,17 +35,19 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 
-public class MainActivity extends AppCompatActivity implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
+public class MainActivity extends AppCompatActivity implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
     String meme_description = "";
     TextToSpeech tts;
+    private static final int MY_PERMISSIONS_REQUEST_SEND_SMS = 0;
     String image_save = "Meme is now saved.";
-    String app_instructions = "To operate our application, swipe left or right to" +
-            "scroll for memes, swipe down for the meme description and text,"+
-            "Shake your phone to share the meme";
+    String app_instructions = "Welcome to Meme-der. In order to operate  our application, swipe down for description of meme, up to save meme, right for next meme and left for previous. To repeat instruction double tap on the screen. Enjoy!";
     String previous_swipe = "Previous Meme";
     String next_swipe = "Next Meme";
     String share_shake = "Sharing Meme";
+    EditText txt_msg;
+    String msg = "Hello World";
+
     private GestureDetector detector;
     boolean requestingImage = false;
     Meme curr = new Meme();
@@ -38,13 +55,10 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     private static final int SWIPE_MIN_DISTANCE = 100;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
 
-    //int[] arrayOfPics = {
-    //        R.drawable.badluckfire,
-    //        R.drawable.firstworldproblem,
-    //        R.drawable.philosoraptor,
-    //        R.drawable.scumbagsteve,
-    //        R.drawable.successkid,
-    //};
+    static final int MY_PERMSSIONS_REQUEST_SEND_SMS = 0;
+    OnLongClickListener longClickListener;
+    SmsManager smsManager;
+
     private ImageView imageView;
 
     //Tag for log messages
@@ -63,6 +77,10 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
         this.detector = new GestureDetector(this, this);
         imageView = (ImageView) findViewById(R.id.imageView3);
         detector.setOnDoubleTapListener(this);
+
+
+        smsManager = SmsManager.getDefault();
+
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -114,13 +132,10 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
         return false;
     }
 
+
     @Override
     public void onLongPress(MotionEvent e) {
-        //new APIRequest().execute();
-        //memeID++;
-        //if (memeID > 4) {
-        //    memeID = 0;
-        //}
+        sendSMSMessage();
     }
 
     @Override
@@ -131,9 +146,9 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
                 onUpSwipe();
             } else if (e2.getY() - e1.getY() > SWIPE_MIN_DISTANCE && Math.abs(velocityY) > SWIPE_THRESHOLD_VELOCITY) {
                 onDownSwipe();
-            } else if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
-                onLeftSwipe();
             } else if (e2.getX() - e1.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
+                onLeftSwipe();
+            } else if (e1.getX() - e2.getX() > SWIPE_MIN_DISTANCE && Math.abs(velocityX) > SWIPE_THRESHOLD_VELOCITY) {
                 onRightSwipe();
             }
 
@@ -182,8 +197,56 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
 
     }
 
-    private void requestImage(){
-        if(requestingImage){
+
+    public void sendSMSMessage() {
+
+        try {
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+            r.play();
+
+
+        } catch (Exception e) {
+
+        }
+
+        msg = ROOT + curr.getFile();
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.SEND_SMS)) {
+            } else {
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        MY_PERMISSIONS_REQUEST_SEND_SMS);
+            }
+        }
+        EditText editTextphone = (EditText) findViewById(R.id.editTextphone);
+        smsManager.sendTextMessage(editTextphone.getText().toString(), null, msg, null, null);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_SEND_SMS: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(getApplicationContext(), "SMS sent.",
+                            Toast.LENGTH_LONG).show();
+                } else {
+                    Toast.makeText(getApplicationContext(),
+                            "SMS faild, please try again.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+            }
+        }
+
+    }
+
+
+    private void requestImage() {
+        if (requestingImage) {
             return;
         }
         new APIRequest().execute();
@@ -192,8 +255,8 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
 
     private void updateMemeImage(Bitmap bitmap) {
         //Toast.makeText(getApplicationContext(), currentmemeindex, Toast.LENGTH_SHORT).show();
-            imageView.setImageBitmap(bitmap);
-            requestingImage = false;
+        imageView.setImageBitmap(bitmap);
+        requestingImage = false;
     }
 
     ///////////////////////Begin ConvertTextToSpeech Methods////////////////////////////////
@@ -204,7 +267,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     }
 
     public void ConvertTextToSpeech2() {
-        meme_description = curr.getDescription()+". "+curr.getText();
+        meme_description = curr.getDescription() + ". " + curr.getText();
         Toast.makeText(getApplicationContext(), meme_description, Toast.LENGTH_SHORT).show();
         tts.speak(meme_description, TextToSpeech.QUEUE_FLUSH, null);
     }
@@ -242,7 +305,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     }
 
     @Override
-    public void onResume(){
+    public void onResume() {
         super.onResume();
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
@@ -276,7 +339,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
                 try {
                     String spec = ROOT + curr.getFile();
 
-                    bitmap = BitmapFactory.decodeStream((InputStream)new URL(spec).getContent());
+                    bitmap = BitmapFactory.decodeStream((InputStream) new URL(spec).getContent());
 
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
@@ -298,5 +361,4 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
         }
     }
 }
-
     /////////////////////////////End Trying to connect to server////////////////////////////////////

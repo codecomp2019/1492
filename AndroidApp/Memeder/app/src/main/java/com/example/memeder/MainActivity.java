@@ -6,6 +6,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
+import android.os.AsyncTask;
 import android.speech.tts.TextToSpeech;
 import android.support.v4.view.MotionEventCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +19,12 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.IOException;
 import java.util.Locale;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
@@ -36,12 +42,16 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     private Sensor mStepCounterSensor;
     private Sensor mStepDetectorSensor;
 
-
-
     private static final int SHAKE_THRESHOLD = 800;
     private static final int SWIPE_MIN_DISTANCE = 100;
     private static final int SWIPE_MAX_OFF_PATH = 250;
     private static final int SWIPE_THRESHOLD_VELOCITY = 200;
+
+    //Tag for log messages
+    private static final String TAG = "MyActivity";
+    //URLS to be used
+    private final String HOME = "http://172.28.170.170:3000/";
+    private final String MEME = "http://172.28.170.170:3000/meme";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +69,8 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
                 }
             }
         });
+
+        new APIRequest().execute();
     }
 
     /////////////Begin Gestures////////////////////////
@@ -195,5 +207,32 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
         super.onPause();
 
     }
+
+    ///////////////////////////Begin Trying to connect to server////////////////////////////////////
+    private class APIRequest extends AsyncTask<Void, Void, String> {
+
+        @Override
+        protected String doInBackground(Void... voids) {
+            String response;
+            try {
+                // HTTP GET
+                WebHandler example = new WebHandler();
+                response = example.run(MEME);
+            } catch (IOException e) {
+                response = e.toString();
+            }
+            Log.i(TAG, response);
+            return response;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+
+            // do something...
+        }
+    }
+
+    /////////////////////////////End Trying to connect to server////////////////////////////////////
 }
 

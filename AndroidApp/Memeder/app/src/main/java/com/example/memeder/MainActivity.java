@@ -24,10 +24,6 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.Locale;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
-
 public class MainActivity extends AppCompatActivity implements GestureDetector.OnGestureListener, GestureDetector.OnDoubleTapListener {
 
     String meme_description = "This is the description of the Meme";
@@ -37,6 +33,8 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
     String previous_swipe = "Previous Meme";
     String next_swipe = "Next Meme";
     String share_shake = "Sharing Meme";
+
+    Meme curr = new Meme();
 
     private GestureDetector detector;
 
@@ -74,7 +72,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
                 }
             }
         });
-
+        new APIRequest().execute();
     }
 
     /////////////Begin Gestures////////////////////////
@@ -184,7 +182,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
 
     public void ConvertTextToSpeech2 (){
         Toast.makeText(getApplicationContext(), meme_description, Toast.LENGTH_SHORT).show();
-        tts.speak(meme_description, TextToSpeech.QUEUE_FLUSH, null);
+        tts.speak(curr.getDescription(), TextToSpeech.QUEUE_FLUSH, null);
     }
 
     public void ConvertTextToSpeech3(){
@@ -233,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements GestureDetector.O
                 //this needs to be converted from JSON to Meme class
                 Gson g = new Gson();
                 Meme m = g.fromJson(response, Meme.class);
+                curr = m;
                 Log.i(OBJ, m.toString());
             } catch (IOException e) {
                 response = e.toString();
